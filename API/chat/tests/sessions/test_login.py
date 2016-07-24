@@ -51,14 +51,4 @@ class SessionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(self.client.session.get('ting_auth'))
 
-    def logout_reserved_user(self):
-        response = self.client.delete(
-            reverse('chat:sessions', args=(message.id,)),
-            {}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertIsNone(self.client.session.get('ting_auth'))
-
-
-
 
