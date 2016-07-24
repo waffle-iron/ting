@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Channel(models.Model):
@@ -33,3 +34,18 @@ class Message(models.Model):
     message_type = models.CharField(max_length=10,
                                     choices=MESSAGE_TYPE,
                                     default=TEXT)
+
+class TingUser(User):
+    MALE = 0
+    FEMALE = 1
+    OTHER = 2
+    NONE = 3
+    GENDERS = (
+        (MALE, 'Male'),
+        (FEMALE, 'Female'),
+        (OTHER, 'Other'),
+        (NONE, 'None'),
+    )
+    gender = models.IntegerField(choices=GENDERS, default=None)
+    birthday = models.DateTimeField(default=None)
+

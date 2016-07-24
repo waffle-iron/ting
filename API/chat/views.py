@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, QueryDict
 from django.views.generic import View
 from .utils import datetime_to_timestamp
 
-from .models import Channel, Message
+from .models import Channel, Message, TingUser
 from .forms import MessageCreationForm, MessagePatchForm
 from django.conf import settings
 
@@ -96,3 +96,34 @@ class ChannelView(View):
             json.dumps(channel),
             content_type='application/json'
         )
+"""
+class TingUserView(View):
+    # USE REQUEST
+    def post(self, request.POST):
+        user = TingUser.objects.create(
+            username=request.POST['username'],
+            password=request.POST['password'],
+            email=request.POST['email'],
+            gender=request.POST['gender']
+        )
+        user.save()
+
+    def patch(self, request.PATCH):
+        user = TingUser.objects.get(
+            username=request.PATCH['username']
+        )
+        if request.PATCH.getattr('username', None):
+            user.set_username(request.PATCH['username'])
+        if request.PATCH.getattr('password', None):
+            user.set_password(request.PATCH['password'])
+        if request.PATCH.getattr('email', None):
+            user.set_email(request.PATCH['email'])
+        if request.PATCH.getattr('gender', None):
+            user.set_gender(request.PATCH['gender'])
+
+    def delete(self, request.DELETE):
+        user = TingUser.objects.get(
+            username = request.DELETE['username']
+        )
+        user.delete()
+"""
