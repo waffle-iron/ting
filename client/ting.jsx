@@ -157,11 +157,11 @@ const Ting = React.createClass({
 });
 
 i18n.init(
-    { 
+    {
         resGetPath:' locales/__lng__.json',
         lng: 'el-GR'
     },
     () => {
         React.render(<Ting />, document.getElementsByClassName('ting')[0]);
-    }   
+    }
 );

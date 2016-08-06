@@ -22,7 +22,7 @@ var LoginForm = React.createClass({
         }
         else if (!rex.test(username)) {
             return 'chars';
-        } 
+        }
         return true;
     },
     _handleError(validationState) {
