@@ -96,6 +96,34 @@ class ChannelView(View):
             json.dumps(channel),
             content_type='application/json'
         )
+class SessionView(View):
+    def post(self, request, *args, **kwargs):
+        session_form = SessionForm(request.POST)
+        try:
+            if not session_form.is_valid():
+                return HttpResponseBadData()
+        except ValidationError as e:
+            if e.code is 'password_required':
+                return HttpResponseForbidden()
+            if e.code is 'wrong_password':
+                return HttpResponseForbidden()
+            if e.code is 'password_set':
+                return HttpResponseNotFound()
+
+        user = TingUser.objects.get(
+            username = request.POST['username']
+        )
+        login(request, user)
+        request.session['ting_auth'] = True
+        return HttpResponse(status=200)
+
+    def delete(self, request, *args, **kwargs):
+        user = TingUser.objects.get(
+            username = request.DELTE['username']
+        )
+        if user:
+            logout(request)
+
 """
 class TingUserView(View):
     # USE REQUEST
