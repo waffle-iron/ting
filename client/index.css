@@ -109,7 +109,7 @@
     margin-bottom: 10px;    
     margin-top: 10px;
 }
-#username-set input[type=text] {
+#username-set input[type=text], #username-set input[type=password] {
     margin-right: auto;
     margin-left: auto;
     width: 30%;
@@ -198,4 +198,10 @@ ul {
 }
 .chat ul li.typing div {
     animation: flash 2s infinite;
+}
+#username-set + div {
+    display: block;
+    margin-bottom: 9px;
+    cursor: pointer;
+    color: #0066FF;
 }

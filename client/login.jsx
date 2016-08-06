@@ -8,7 +8,8 @@ var LoginForm = React.createClass({
             validationState: true,
             errorStr: '',
             username: '',
-            changed: false
+            changed: false,
+            type: 'simpleLogin'
         };
     },
     _validate(username) {
@@ -66,6 +67,9 @@ var LoginForm = React.createClass({
 
         this.props.onLoginIntention(this.state.username);
     },
+    switchToPasswordLogin() {
+        this.setState({type: 'passwordLogin'});
+    },
     componentDidMount() {
         $(React.findDOMNode(this.refs.usernameSetModal)).modal('show');
         setTimeout(() => {
@@ -76,8 +80,22 @@ var LoginForm = React.createClass({
         var alertClasses = classNames({
             'alert': true,
             'alert-warning': true,
-            'hidden': this.state.validationState === true
+            'hidden': this.state.validationStateUsername === true && this.state.validationStatePassword === true
         });
+
+        var haveAccLink = null,
+            passwordField = null;
+
+        if (this.state.type == 'simpleLogin') {
+            haveAccLink = <div onClick={this.switchToPasswordLogin}>Έχω ήδη ψευδώνυμο</div>;
+        }
+        else if (this.state.type == 'passwordLogin') {
+            passwordField = <input type='password'
+                                   className='form-control input-small'
+                                   placeholder={i18n.t('passwordSet.placeholder')}
+                                   ref='password'
+                                   onChange={this.handleChangePassword} />
+        }
 
         return (
             <div className='modal fade'
@@ -101,12 +119,14 @@ var LoginForm = React.createClass({
                                        placeholder={i18n.t('usernameSet.placeholder')}
                                        ref='username'
                                        onChange={this.handleChange} />
+                                {passwordField}
                                 <input type='submit'
                                        name='join'
                                        id='join'
                                        value={i18n.t('usernameSet.submit')}
                                        className='btn btn-primary' />
                             </form>
+                            {haveAccLink}
                         </div>
                     </div>
                 </div>
