@@ -57,25 +57,29 @@ winston.debug('Using persistence API back-end at ' + URL);
 
 socket.on('connection', function (client) {
     winston.info('A user with client id "' + client.id + '" connected.');
-    client.on('login', function(username) {
+    client.on('login', function(username, password) {
         var rex = /^[ά-ώα-ωa-z0-9]+$/i;
         var resp = {
             success: true
         };
         if (username == '') {
-            sendLoginErrorResponse(username, client, 'empty');
+            sendLoginErrorResponse(username, client, 'username-empty');
             return;
         }
         if (username.length > 20) {
-            sendLoginErrorResponse(username, client, 'length');
+            sendLoginErrorResponse(username, client, 'username-length');
             return;
         }
         if (!rex.test(username)) {
-            sendLoginErrorResponse(username, client, 'chars');
+            sendLoginErrorResponse(username, client, 'username-chars');
             return;
         }
         if (usernames[username]) {
-            sendLoginErrorResponse(username, client, 'taken');
+            sendLoginErrorResponse(username, client, 'username-taken');
+            return;
+        }
+        if (password != null && password == '') {
+            sendLoginErrorResponse(username, client, 'password-empty');
             return;
         }
         people[client.id] = username;

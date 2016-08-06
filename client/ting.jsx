@@ -35,6 +35,7 @@ const Ting = React.createClass({
         return {
             channel,
             intendedUsername: null,
+            intendedPassword: null,
             // TODO(dionyziz): race conditions and queues
             currentMessageId: null
         };
@@ -123,11 +124,11 @@ const Ting = React.createClass({
         };
         this._socket.emit('typing-update', data);
     },
-    onLoginIntention(intendedUsername) {
-        this.setState({intendedUsername});
+    onLoginIntention(intendedUsername, intendedPassword) {
+        this.setState({intendedUsername, intendedPassword});
 
         Analytics.onLoginIntention(intendedUsername);
-        this._socket.emit('login', intendedUsername);
+        this._socket.emit('login', intendedUsername, intendedPassword);
     },
     render() {
         return (
