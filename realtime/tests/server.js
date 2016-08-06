@@ -43,7 +43,7 @@ describe('Node Server', function() {
 
             socket.on('login-response', function(resp) {
                 expect(resp.success).toBe(false);
-                expect(resp.error).toBe('empty');
+                expect(resp.error).toBe('username-empty');
                 done();
             });
         });
@@ -89,7 +89,7 @@ describe('Node Server', function() {
 
             socket.on('login-response', function(resp) {
                 expect(resp.success).toBe(false);
-                expect(resp.error).toBe('length');
+                expect(resp.error).toBe('username-length');
                 done();
             });
         });
@@ -99,7 +99,7 @@ describe('Node Server', function() {
 
             socket.on('login-response', function(resp) {
                 expect(resp.success).toBe(false);
-                expect(resp.error).toBe('chars');
+                expect(resp.error).toBe('username-chars');
                 done();
             });
         });
