@@ -73,7 +73,7 @@
     padding: 10px 2px 0 12px;
     width: 100%;
 }
-.chat ul div {
+.chat ul div.text {
     margin: 0 0 0 12px;
     padding: 9px;
     border-radius: 16px;
@@ -86,11 +86,11 @@
     top: -2px;
     cursor: text;
 }
-.chat ul .self div {
+.chat ul .self div.text {
     background-color: #0084ff;
     color: white;
 }
-.chat ul .typing div {
+.chat ul .typing div.text {
     opacity: 0.5;
 }
 #message {
@@ -117,11 +117,11 @@
 ul {
     list-style-type: none;
 }
-.chat ul .self div a {
+.chat ul .self div.text a {
     color: white;
     text-decoration: underline;
 }
-.chat ul div:after {
+.chat ul div.text:after {
     content: "◀";
     display: block;
     position: absolute;
@@ -130,7 +130,7 @@ ul {
     color: #f1f0f0;
     font-weight: bold;
 }
-.chat ul .self div:after {
+.chat ul .self div.text:after {
     color: #0084ff;
 }
 #online-list {
@@ -196,7 +196,7 @@ ul {
         opacity: 0.5;
     }
 }
-.chat ul li.typing div {
+.chat ul li.typing div.text {
     animation: flash 2s infinite;
 }
 #username-set + div {

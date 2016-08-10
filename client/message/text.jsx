@@ -23,7 +23,7 @@ const Text = React.createClass({
         var message_content = this.props.message_content;
 
         return (
-            <div dangerouslySetInnerHTML={this._formatMessage(message_content)}>
+            <div className='text' dangerouslySetInnerHTML={this._formatMessage(message_content)}>
             </div>
         );
     }
