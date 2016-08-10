@@ -105,6 +105,43 @@
     margin-top: 7px;
     margin-left: 20px;
 }
+.top img.avatar {
+    position: absolute;
+    top: 10%;
+    right: 22px;
+    border-radius: 50px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.top .menu {
+    position: absolute;
+    top: 50px;
+    right: 24px;
+    background-color: LightSlateGray;
+    border-radius: 5px;
+    padding: 0px;
+    z-index: 2;
+}
+.top .menu:before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 3px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid LightSlateGray;
+}
+.top .menu li {
+    margin: 15px 10px;
+    color: white;
+    cursor: pointer;
+}
+.menu li a {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
 #username-set input {
     margin-bottom: 10px;    
     margin-top: 10px;

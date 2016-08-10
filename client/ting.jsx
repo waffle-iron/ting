@@ -1,5 +1,6 @@
 const UserList = require('./userlist.jsx'),
       LoginForm = require('./login.jsx'),
+      TopBar = require('./topbar.jsx'),
       History = require('./message/history.jsx'),
       MessageForm = require('./message/form.jsx'),
       React = require('react'),
@@ -15,6 +16,7 @@ const Ting = React.createClass({
         this.refs.history.onLogin(username, people);
         this.refs.messageForm.onLogin(username, people);
         this.refs.userList.onLogin(username, people);
+        this.refs.topBar.onLogin(username, people);
 
         // currently `type` is always 'channel'
         $.getJSON('/api/messages/channel/' + this.state.channel, (messages) => {
@@ -135,6 +137,7 @@ const Ting = React.createClass({
             <div>
                 <div className='top'>
                     <h1>Ting</h1>
+                    <TopBar ref='topBar' />
                 </div>
                 <div className='app'>
                     <div className='nicklist'>
