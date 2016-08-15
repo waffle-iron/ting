@@ -1,13 +1,15 @@
 import json
 
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, HttpResponseBadRequest, QueryDict
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, QueryDict
 from django.views.generic import View
 from .utils import datetime_to_timestamp
 
 from .models import Channel, Message, TingUser
-from .forms import MessageCreationForm, MessagePatchForm
+from .forms import MessageCreationForm, MessagePatchForm, SessionForm
+from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.contrib.auth import authenticate, login
 
 
 def privileged(f):
@@ -96,12 +98,13 @@ class ChannelView(View):
             json.dumps(channel),
             content_type='application/json'
         )
+
 class SessionView(View):
     def post(self, request, *args, **kwargs):
         session_form = SessionForm(request.POST)
         try:
             if not session_form.is_valid():
-                return HttpResponseBadData()
+                return HttpResponseBadRequest()
         except ValidationError as e:
             if e.code is 'password_required':
                 return HttpResponseForbidden()
@@ -109,19 +112,12 @@ class SessionView(View):
                 return HttpResponseForbidden()
             if e.code is 'password_set':
                 return HttpResponseNotFound()
-
-        user = TingUser.objects.get(
-            username = request.POST['username']
-        )
+        user = authenticate(username=request.POST['username'], password=request.POST['password'])
         login(request, user)
-        request.session['ting_auth'] = True
+        request.session['ting_auth'] = user.id
         return HttpResponse(status=200)
 
     def delete(self, request, *args, **kwargs):
-        user = TingUser.objects.get(
-            username = request.DELTE['username']
-        )
-        if user:
             logout(request)
 
 """
