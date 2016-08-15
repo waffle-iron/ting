@@ -4,7 +4,8 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
-from .models import Message, TingUser
+from .models import Message
+from django.contrib.auth.models import User
 from .utils import timestamp_to_datetime, datetime_to_timestamp
 
 
@@ -57,38 +58,34 @@ class MessagePatchForm(MessageForm):
 
 class SessionForm(forms.Form):
     username = forms.CharField(max_length=20)
-    password = forms.PasswordField(required=False)
+    password = forms.CharField(max_length=32, widget=forms.PasswordInput, required=False)
 
     def is_valid(self):
         if not super(SessionForm, self).is_valid():
             return False
 
-        if not self.username:
-            # bad data, username not set
-
-        if TingUser.objects.filter(username=self.username).exists():
+        if User.objects.get(username=self.data['username']).tinguser.reserved:
             # username reserved
-            if not self.password:
+            if not self.data['password']:
             # username reserved and no password is set
                 raise ValidationError(
                     "password_required",
                     code="password_required"
                 )
 
-            user = authenticate(username=self.username, password=self.password)
+            user = authenticate(username=self.data['username'], password=self.data['password'])
             if user is None:
                 raise ValidationError(
                     "wrong_password",
                     code="wrong_password"
                 )
-
+        """
         elif self.password:
             # username not reserved, but password is set
             raise ValidationError(
                 "The username is not reserved, so no password should be set",
                 code="password_set"
             )
-
-
+        """
         return True
 
