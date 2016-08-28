@@ -24,7 +24,6 @@ class SessionTests(ChatTests):
         )
         self.assertEqual(response.status_code, 403)
 
-
     def test_login_with_reserved_username_and_wrong_password(self):
         username = 'alex'
         create_user(username=username, password='something', reserved=True)
