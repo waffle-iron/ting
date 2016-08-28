@@ -2,11 +2,13 @@ import time
 
 from django import forms
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 
 from .models import Message
 from django.contrib.auth.models import User
 from .utils import timestamp_to_datetime, datetime_to_timestamp
+from django.utils.crypto import get_random_string
 
 
 
@@ -56,7 +58,7 @@ class MessagePatchForm(MessageForm):
 
         message.save()
 
-class SessionForm(forms.Form):
+class SessionForm(AuthenticationForm):
     username = forms.CharField(max_length=20)
     password = forms.CharField(max_length=32, widget=forms.PasswordInput, required=False)
 
@@ -79,13 +81,18 @@ class SessionForm(forms.Form):
                     "wrong_password",
                     code="wrong_password"
                 )
-        """
-        elif self.password:
-            # username not reserved, but password is set
-            raise ValidationError(
-                "The username is not reserved, so no password should be set",
-                code="password_set"
-            )
-        """
+        elif not User.objects.get(username=self.data['username']).tinguser.reserved:
+            # username not reserved
+            if  self.data['password']:
+                raise ValidationError(
+                    "The username is not reserved, so no password should be set",
+                    code="password_set"
+                )
+            if not User.objects.get(username=self.data['username']):
+                user = User.objects.create_user(
+                    username=self.data['username'],
+                    password=get_random_string()
+                )
+
         return True
 

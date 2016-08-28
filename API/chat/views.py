@@ -118,7 +118,7 @@ class SessionView(View):
         return HttpResponse(status=200)
 
     def delete(self, request, *args, **kwargs):
-            logout(request)
+        logout(request)
 
 """
 class TingUserView(View):
