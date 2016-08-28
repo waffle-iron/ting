@@ -19,4 +19,9 @@ urlpatterns = [
         views.ChannelView.as_view(),
         name='channel'
     ),
+    url(
+        r'^cities/$',
+        views.CityView.as_view(),
+        name='city'
+    ),
 ]

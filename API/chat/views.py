@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, QueryDict
 from django.views.generic import View
 from .utils import datetime_to_timestamp
 
-from .models import Channel, Message
+from .models import Channel, Message, City
 from .forms import MessageCreationForm, MessagePatchForm
 from django.conf import settings
 
@@ -96,3 +96,11 @@ class ChannelView(View):
             json.dumps(channel),
             content_type='application/json'
         )
+
+
+class CityView(View):
+    def get(self, request, *args, **kwargs):
+        cities = City.objects.values('name').order_by('name')
+        cities_json = json.dumps(list(cities))
+
+        return HttpResponse(cities_json, content_type='application/json')

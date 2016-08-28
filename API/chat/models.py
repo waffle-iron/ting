@@ -33,3 +33,10 @@ class Message(models.Model):
     message_type = models.CharField(max_length=10,
                                     choices=MESSAGE_TYPE,
                                     default=TEXT)
+
+
+class City(models.Model):
+    def __str__(self):
+        return self.name
+
+    name = models.CharField(max_length=20, unique=True)
