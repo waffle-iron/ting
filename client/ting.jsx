@@ -8,7 +8,8 @@ const UserList = require('./userlist.jsx'),
       i18n = require('i18next-client'),
       io = require('socket.io-client'),
       config = require('./config.jsx'),
-      _ = require('lodash');
+      _ = require('lodash'),
+      Settings = require('./settings.jsx'),
 
 const Ting = React.createClass({
     _socket: null,
@@ -17,6 +18,7 @@ const Ting = React.createClass({
         this.refs.messageForm.onLogin(username, people);
         this.refs.userList.onLogin(username, people);
         this.refs.topBar.onLogin(username, people);
+        //this.refs.settings.onLogin(username, people);
 
         // currently `type` is always 'channel'
         $.getJSON('/api/messages/channel/' + this.state.channel, (messages) => {
