@@ -10,6 +10,9 @@ const UserList = require('./userlist.jsx'),
       config = require('./config.jsx'),
       _ = require('lodash'),
       Settings = require('./settings.jsx'),
+      Router = require('react-router').Router,
+      Route = require('react-router').Route,
+      hashHistory = require('react-router').hashHistory;
 
 const Ting = React.createClass({
     _socket: null,
@@ -32,9 +35,11 @@ const Ting = React.createClass({
               parts = url.split('/');
         var [channel] = parts.slice(-1);
 
-        if (channel == '' || channel == '?') {
+        /*if (channel == '' || channel == '?') {
             channel = 'ting';
-        }
+        }*/
+
+        channel = 'ting';
 
         return {
             channel,
@@ -168,6 +173,10 @@ i18n.init(
         lng: 'el-GR'
     },
     () => {
-        React.render(<Ting />, document.getElementsByClassName('ting')[0]);
+        React.render((
+                <Router history={hashHistory}>
+                    <Route path='/' component={Ting} />
+                    <Route path='/settings' component={Settings} />
+                </Router>), document.getElementsByClassName('ting')[0]);
     }
 );
