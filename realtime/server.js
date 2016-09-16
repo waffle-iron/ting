@@ -142,9 +142,14 @@ socket.on('connection', function (client) {
             }
             else {
                 messageid = body;
-
                 messages_typing[messageid] = form;
+
                 socket.sockets.emit('update-typing-messages', messages_typing);
+
+                if(data.message_type == 'image') {
+                    socket.sockets.emit('upload-image', {message_content: data.message_content, messageid: messageid});
+                }
+
                 client.emit('start-typing-response', messageid);
             }
         });

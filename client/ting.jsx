@@ -82,12 +82,14 @@ const Ting = React.createClass({
             this.props.onUpdateTypingMessages(messagesTyping);
         });
 
+        this._socket.on('upload-image', ({message_content, messageid}) => {
+            this.onMessageSubmit(message_content, 'image', messageid);
         });
 
         Analytics.init();
     },
-    onMessageSubmit(message, messageType) {
-        if (this.state.currentMessageId == null) {
+    onMessageSubmit(message, messageType, messageid) {
+        if (this.state.currentMessageId == null && messageType == 'text') {
             //console.log('Skipping message submit');
             return;
         }
@@ -96,9 +98,10 @@ const Ting = React.createClass({
             type: 'channel',
             target: this.state.channel,
             message_content: message,
-            messageid: this.state.currentMessageId,
+            messageid: messageType == 'image' ? messageid : this.state.currentMessageId,
             message_type: messageType
         };
+
         this._socket.emit('message', data);
 
         Analytics.onMessageSubmit(message);
