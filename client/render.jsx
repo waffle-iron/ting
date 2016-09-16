@@ -12,6 +12,7 @@ const React= require('react'),
       ConnectedSettings = require('./containers/connected_settings.jsx'),
       Chat = require('./chat.jsx');
 
+const store = createStore(RootReducer);
 
 i18n.init(
     {
