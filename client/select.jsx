@@ -23,8 +23,8 @@ const Select = React.createClass({
         }
         
         if(elements != null) {
-            options = elements.map(function(num) {
-                return <option>{num}</option>;
+            options = elements.map(function(elem, ind) {
+                return <option key={ind}>{elem}</option>;
             });
         }
 
