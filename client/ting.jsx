@@ -17,17 +17,14 @@ const UserList = require('./userlist.jsx'),
 const Ting = React.createClass({
     _socket: null,
     onLogin(username, people) {
-        this.refs.history.onLogin(username, people);
-        this.refs.messageForm.onLogin(username, people);
-        this.refs.userList.onLogin(username, people);
-        this.refs.topBar.onLogin(username, people);
-        //this.refs.settings.onLogin(username, people);
+        this.refs.topBar.onLogin(username);
+        this.props.onLogin(username, people);
 
         // currently `type` is always 'channel'
         $.getJSON('/api/messages/channel/' + this.state.channel, (messages) => {
             const history = _.indexBy(messages, 'id');
 
-            this.refs.history.onHistoricalMessagesAvailable(history);
+            this.props.onHistoricalMessagesAvailable(history);
         });
     },
     getInitialState() {
@@ -69,26 +66,27 @@ const Ting = React.createClass({
         });
 
         this._socket.on('message', (data) => {
-            this.refs.history.onMessage(data);
+            this.props.onMessage(data);
         });
 
         this._socket.on('part', (username) => {
-            this.refs.userList.onPart(username);
-            this.refs.history.deleteTypingMessage(username);
+            this.props.onPart(username);
         });
 
-        this._socket.on(
-            'join',
-            (username) => this.refs.userList.onJoin(username)
-        );
+        this._socket.on('join', (username) => {
+            if (username != this.state.intendedUsername) {
+                this.props.onJoin(username);
+            }
+        });
 
         this._socket.on('start-typing-response', (messageid) => {
             this.setState({currentMessageId: messageid});
-            this.refs.messageForm.onStartTypingResponse(messageid);
         });
 
         this._socket.on('update-typing-messages', (messagesTyping) => {
-            this.refs.history.onUpdateTypingMessages(messagesTyping);
+            this.props.onUpdateTypingMessages(messagesTyping);
+        });
+
         });
 
         Analytics.init();
@@ -140,26 +138,24 @@ const Ting = React.createClass({
         this._socket.emit('login', intendedUsername, intendedPassword);
     },
     render() {
+        const children = React.Children.map(this.props.children,
+            (child) => React.cloneElement(child, {
+                channel: this.state.channel,
+                onMessageSubmit: this.onMessageSubmit,
+                onTypingUpdate: this.onTypingUpdate,
+                onStartTyping: this.onStartTyping
+            })
+        );
+
         return (
             <div>
                 <div className='top'>
                     <h1>Ting</h1>
                     <TopBar ref='topBar' />
                 </div>
-                <div className='app'>
-                    <div className='nicklist'>
-                        <UserList ref='userList' />
-                    </div>
-                    <div className='chat'>
-                        <History ref='history'
-                                 channel={this.state.channel} />
-                        <MessageForm ref='messageForm'
-                                     channel={this.state.channel}
-                                     onMessageSubmit={this.onMessageSubmit}
-                                     onTypingUpdate={this.onTypingUpdate}
-                                     onStartTyping={this.onStartTyping} />
-                    </div>
-                </div>
+
+                {children}
+
                 <LoginForm ref='loginForm'
                            onLoginIntention={this.onLoginIntention} />
             </div>
