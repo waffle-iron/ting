@@ -5,16 +5,10 @@ const React = require('react'),
 const Settings = React.createClass({
     getInitialState() {
         return {
-            myUsername: '',
             sex: ['Αγόρι', 'Κορίτσι', '-'],
             cities: []
         };
     },
-    
-    onLogin(myUsername) {
-        this.setState({myUsername});
-    },
-
     componentWillMount() {
         var cities = [];
 
