@@ -11,6 +11,8 @@ const UserList = require('./userlist.jsx'),
 
 const Ting = React.createClass({
     _socket: null,
+    _title: document.title,
+    _audio: new Audio('static/sounds/message_sound.mp3'),
     onLogin(username, people) {
         this.refs.topBar.onLogin(username);
         this.props.onLogin(username, people);
@@ -38,7 +40,9 @@ const Ting = React.createClass({
             intendedUsername: null,
             intendedPassword: null,
             // TODO(dionyziz): race conditions and queues
-            currentMessageId: null
+            currentMessageId: null,
+            active: true,
+            unread: 0
         };
     },
     componentWillMount() {
@@ -61,6 +65,14 @@ const Ting = React.createClass({
         });
 
         this._socket.on('message', (data) => {
+            if (!this.state.active && data.username != this.state.intendedUsername) {
+                this.setState({
+                    unread: this.state.unread + 1
+                });
+
+                this._audio.play();
+            }
+
             this.props.onMessage(data);
         });
 
@@ -134,6 +146,36 @@ const Ting = React.createClass({
 
         Analytics.onLoginIntention(intendedUsername);
         this._socket.emit('login', intendedUsername, intendedPassword);
+    },
+    _updateTitle() {
+        var titlePrefix;
+
+        if (this.state.active || this.state.unread == 0) {
+            titlePrefix = '';
+        }
+        else {
+            titlePrefix = '(' + this.state.unread + ') ';
+        }
+
+        document.title = titlePrefix + this._title;
+    },
+    componentDidUpdate() {
+        this._updateTitle();
+    },
+    componentDidMount() {
+        $(document).on({
+            show: () => {
+                this.setState({
+                    active: true,
+                    unread: 0
+                });
+            },
+            hide: () => {
+                this.setState({
+                    active: false
+                });
+            }
+        });
     },
     render() {
         const children = React.Children.map(this.props.children,

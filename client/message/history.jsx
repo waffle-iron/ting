@@ -6,50 +6,16 @@ const React = require('react'),
 
 const History = React.createClass({
     _wrapper: null,
-    _title: document.title,
-    _audio: new Audio('static/sounds/message_sound.mp3'),
     _scrollDown() {
         setTimeout(() => {
             this._wrapper.scrollTop = this._wrapper.scrollHeight;
         }, 30);
-    },
-    _updateTitle() {
-        var titlePrefix;
-
-        if (this.state.active || this.state.unread == 0) {
-            titlePrefix = '';
-        }
-        else {
-            titlePrefix = '(' + this.state.unread + ') ';
-        }
-
-        document.title = titlePrefix + this._title;
-    },
-    getInitialState() {
-        return {
-            unread: 0,
-            active: true
-        };
     },
     componentDidMount() {
         this._wrapper = ReactDOM.findDOMNode(this.refs.wrapper);
 
         $.getJSON('node_modules/emoticons/support/skype/emoticons.json', function(definition) {
             emoticons.define(definition);
-        });
-
-        $(document).on({
-            show: () => {
-                this.setState({
-                    active: true,
-                    unread: 0
-                });
-            },
-            hide: () => {
-                this.setState({
-                    active: false
-                });
-            }
         });
     },
     render() {
@@ -79,7 +45,6 @@ const History = React.createClass({
         );
     },
     componentDidUpdate() {
-        this._updateTitle();
         this._scrollDown();
     }
 });
