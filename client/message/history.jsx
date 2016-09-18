@@ -27,73 +27,9 @@ const History = React.createClass({
     },
     getInitialState() {
         return {
-            messages: {},
             unread: 0,
-            active: true,
-            myUsername: null
+            active: true
         };
-    },
-    deleteTypingMessage(username) {
-        var messages = this.state.messages;
-
-        for (var id in messages) {
-            if (messages[id].username == username && messages[id].typing) {
-                delete messages[id];
-            }
-        }
-
-        this.setState({messages});
-    },
-    onUpdateTypingMessages(messagesTyping) {
-        var messages = this.state.messages;
-
-        $.each(messagesTyping, (messageid, message) => {
-            if (message.message_content.trim().length == 0) {
-                delete messages[messageid];
-            }
-            else if (message.target == this.props.channel) {
-                if (messages[messageid]) {
-                    messages[messageid].message_content = message.message_content;
-                }
-                else {
-                    messages[messageid] = {
-                        message_content: message.message_content,
-                        username: message.username,
-                        target: message.target,
-                        id: messageid,
-                        typing: true,
-                        message_type: message.message_type
-                    };
-                }
-            }
-        });
-
-        this.setState({messages});
-    },
-    onHistoricalMessagesAvailable(messages) {
-        this.setState({messages});
-    },
-    onLogin(myUsername) {
-        this.setState({myUsername});
-    },
-    onMessage(data) {
-        if (data.target == this.props.channel) {
-            this.setState((previousState, currentProps) => {
-                var messages = previousState.messages;
-                messages[data.messageid].message_content = data.message_content;
-                messages[data.messageid].typing = false;
-
-                return {messages};
-            });
-
-            if (!this.state.active && data.username != this.state.myUsername) {
-                this.setState({
-                    unread: this.state.unread + 1
-                });
-
-                this._audio.play();
-            }
-        }
     },
     componentDidMount() {
         this._wrapper = ReactDOM.findDOMNode(this.refs.wrapper);
