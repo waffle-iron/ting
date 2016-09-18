@@ -5,14 +5,9 @@ const UserList = require('./userlist.jsx'),
       MessageForm = require('./message/form.jsx'),
       React = require('react'),
       Analytics = require('./analytics.js'),
-      i18n = require('i18next-client'),
       io = require('socket.io-client'),
       config = require('./config.jsx'),
-      _ = require('lodash'),
-      Settings = require('./settings.jsx'),
-      Router = require('react-router').Router,
-      Route = require('react-router').Route,
-      hashHistory = require('react-router').hashHistory;
+      _ = require('lodash');
 
 const Ting = React.createClass({
     _socket: null,
@@ -163,16 +158,4 @@ const Ting = React.createClass({
     }
 });
 
-i18n.init(
-    {
-        resGetPath:' locales/__lng__.json',
-        lng: 'el-GR'
-    },
-    () => {
-        React.render((
-                <Router history={hashHistory}>
-                    <Route path='/' component={Ting} />
-                    <Route path='/settings' component={Settings} />
-                </Router>), document.getElementsByClassName('ting')[0]);
-    }
-);
+module.exports = Ting;
