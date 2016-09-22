@@ -26,16 +26,14 @@ const Settings = React.createClass({
             this.setState({cities});
         });
     },
-
     render() {
-
         return (
             <div>
                 <div id='settings'>
                     <div className='icon-username'>
-                        <h2>{this.state.myUsername}</h2>
+                        <h2>{this.props.username}</h2>
                         <div className='icon'>
-                            <Avatar username={this.state.myUsername} />
+                            <Avatar username={this.props.username} />
                             <span>Αλλαγή της εικόνας μου</span>
                         </div>
                     </div>

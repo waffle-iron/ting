@@ -3,7 +3,7 @@ const React = require('react'),
 
 const UserList = React.createClass({
     render() {
-        var userNodes = this.state.users.map((user) => {
+        var userNodes = this.props.users.map((user) => {
             return (
                 <User key={user} username={user} />
             );
