@@ -7,9 +7,9 @@ from .utils import datetime_to_timestamp
 
 from .models import Channel, Message, TingUser
 from .forms import MessageCreationForm, MessagePatchForm, SessionForm
-from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth import authenticate, login
+from django import forms
 
 
 def privileged(f):
@@ -101,21 +101,25 @@ class ChannelView(View):
 
 class SessionView(View):
     def post(self, request, *args, **kwargs):
-        session_form = SessionForm(request.POST)
-        try:
-            if not session_form.is_valid():
-                return HttpResponseBadRequest()
-        except ValidationError as e:
-            if e.code is 'password_required':
+        session_form = SessionForm(data=request.POST)
+        if not session_form.is_valid():
+            error = session_form.errors["__all__"].as_data()[0]
+            if error.code in [
+                'invalid_login', 'password_required', 'wrong_password'
+            ]:
                 return HttpResponseForbidden()
-            if e.code is 'wrong_password':
-                return HttpResponseForbidden()
-            if e.code is 'password_set':
+            if error.code is 'password_set':
                 return HttpResponseNotFound()
-        user = authenticate(username=request.POST['username'], password=request.POST['password'])
-        login(request, user)
-        request.session['ting_auth'] = user.id
+            if error.code is 'invalid_username':
+                return HttpResponseBadRequest()
+
+        user = session_form.get_user()
+        if user is not None:
+            login(request, user)
+            request.session['ting_auth'] = user.id
+
         return HttpResponse(status=200)
+
 
     def delete(self, request, *args, **kwargs):
         logout(request)

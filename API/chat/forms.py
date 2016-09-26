@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from .models import Message
 from django.contrib.auth.models import User
 from .utils import timestamp_to_datetime, datetime_to_timestamp
-from django.utils.crypto import get_random_string
 
 
 
@@ -59,40 +58,55 @@ class MessagePatchForm(MessageForm):
         message.save()
 
 class SessionForm(AuthenticationForm):
-    username = forms.CharField(max_length=20)
+    username = forms.CharField(max_length=20, required=False)
     password = forms.CharField(max_length=32, widget=forms.PasswordInput, required=False)
 
-    def is_valid(self):
-        if not super(SessionForm, self).is_valid():
-            return False
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
 
-        if User.objects.get(username=self.data['username']).tinguser.reserved:
+        if not username:
+            raise forms.ValidationError(
+                "invalid_username",
+                code="invalid_username"
+            )
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            rand_pass=User.objects.make_random_password()
+            user = User.objects.create_user(
+                username=self.data['username'],
+                password=rand_pass
+            )
+            user.save()
+
+        if not user.tinguser.reserved and password:
+            # unreserved username and password set
+            raise forms.ValidationError(
+                "password_set",
+                code="password_set"
+            )
+
+        if user and user.tinguser.reserved:
             # username reserved
-            if not self.data['password']:
+            if not password:
             # username reserved and no password is set
-                raise ValidationError(
+                raise forms.ValidationError(
                     "password_required",
                     code="password_required"
                 )
 
-            user = authenticate(username=self.data['username'], password=self.data['password'])
+            user = authenticate(username=username, password=password)
             if user is None:
-                raise ValidationError(
+                raise forms.ValidationError(
                     "wrong_password",
                     code="wrong_password"
                 )
-        elif not User.objects.get(username=self.data['username']).tinguser.reserved:
-            # username not reserved
-            if  self.data['password']:
-                raise ValidationError(
-                    "The username is not reserved, so no password should be set",
-                    code="password_set"
-                )
-            if not User.objects.get(username=self.data['username']):
-                user = User.objects.create_user(
-                    username=self.data['username'],
-                    password=get_random_string()
-                )
 
-        return True
+        if not user.tinguser.reserved:
+            user = authenticate(username=user.username, password=rand_pass)
+        self.user_cache = user
+        self.confirm_login_allowed(self.user_cache)
+        return self.cleaned_data
 

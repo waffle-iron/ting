@@ -17,7 +17,7 @@ class SessionTests(ChatTests):
     def test_login_with_reserved_username_and_no_password(self):
         username = 'alex'
         create_user(username=username, password='something', reserved=True)
-        post_dict = {'username': username, 'password': 'tsaka tin tsapou'}
+        post_dict = {'username': username, 'password': ''}
         response = self.client.post(
             reverse('chat:session'),
             post_dict
@@ -47,7 +47,6 @@ class SessionTests(ChatTests):
         self.assertTrue(user.is_authenticated)
         self.assertEqual(response.status_code, 200)
 
-    """
     def test_login_with_not_reserved_username_and_password(self):
         post_dict = {'username': 'alex', 'password': 'bigfatsecret'}
         response = self.client.post(
@@ -57,11 +56,10 @@ class SessionTests(ChatTests):
         self.assertEqual(response.status_code, 404)
 
     def test_login_wih_not_reserved_username_and_no_password(self):
-        post_dict = {'username': 'alex', 'password': ''}
+        post_dict = {'username': 'unreserved'}
         response = self.client.post(
             reverse('chat:session'),
             post_dict
         )
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(self.client.session.get('ting_auth'))
-    """
