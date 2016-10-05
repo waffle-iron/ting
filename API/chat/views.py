@@ -1,13 +1,14 @@
 import json
 
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, HttpResponseBadRequest, QueryDict
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, QueryDict
 from django.views.generic import View
 from .utils import datetime_to_timestamp
-
-from .models import Channel, Message, City
-from .forms import MessageCreationForm, MessagePatchForm
+from .models import Channel, Message, TingUser, City
+from .forms import MessageCreationForm, MessagePatchForm, SessionForm
 from django.conf import settings
+from django.contrib.auth import authenticate, login
+from django import forms
 
 
 def privileged(f):
@@ -97,10 +98,34 @@ class ChannelView(View):
             content_type='application/json'
         )
 
-
 class CityView(View):
     def get(self, request, *args, **kwargs):
         cities = City.objects.values('name').order_by('name')
         cities_json = json.dumps(list(cities))
 
         return HttpResponse(cities_json, content_type='application/json')
+
+class SessionView(View):
+    def post(self, request, *args, **kwargs):
+        session_form = SessionForm(data=request.POST)
+        if not session_form.is_valid():
+            error = session_form.errors["__all__"].as_data()[0]
+            if error.code in [
+                'invalid_login', 'password_required', 'wrong_password'
+            ]:
+                return HttpResponseForbidden()
+            if error.code is 'password_set':
+                return HttpResponseNotFound()
+            if error.code is 'invalid_username':
+                return HttpResponseBadRequest()
+
+        user = session_form.get_user()
+        if user is not None:
+            login(request, user)
+            request.session['ting_auth'] = user.id
+
+        return HttpResponse(status=200)
+
+
+    def delete(self, request, *args, **kwargs):
+        logout(request)

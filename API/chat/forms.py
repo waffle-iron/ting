@@ -1,7 +1,12 @@
 import time
 
 from django import forms
+from django.contrib.auth import authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
+
 from .models import Message
+from django.contrib.auth.models import User
 from .utils import timestamp_to_datetime, datetime_to_timestamp
 
 
@@ -51,3 +56,57 @@ class MessagePatchForm(MessageForm):
         message.typing = self.cleaned_data.get('typing', False)
 
         message.save()
+
+class SessionForm(AuthenticationForm):
+    username = forms.CharField(max_length=20, required=False)
+    password = forms.CharField(max_length=32, widget=forms.PasswordInput, required=False)
+
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if not username:
+            raise forms.ValidationError(
+                "invalid_username",
+                code="invalid_username"
+            )
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            rand_pass=User.objects.make_random_password()
+            user = User.objects.create_user(
+                username=self.data['username'],
+                password=rand_pass
+            )
+            user.save()
+
+        if not user.tinguser.reserved and password:
+            # unreserved username and password set
+            raise forms.ValidationError(
+                "password_set",
+                code="password_set"
+            )
+
+        if user and user.tinguser.reserved:
+            # username reserved
+            if not password:
+            # username reserved and no password is set
+                raise forms.ValidationError(
+                    "password_required",
+                    code="password_required"
+                )
+
+            user = authenticate(username=username, password=password)
+            if user is None:
+                raise forms.ValidationError(
+                    "wrong_password",
+                    code="wrong_password"
+                )
+
+        if not user.tinguser.reserved:
+            user = authenticate(username=user.username, password=rand_pass)
+        self.user_cache = user
+        self.confirm_login_allowed(self.user_cache)
+        return self.cleaned_data
+
