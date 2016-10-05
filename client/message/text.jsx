@@ -1,4 +1,4 @@
-const React = require('react/addons'),
+const React = require('react'),
       escape = require('escape-html'),
       emoticons = require('emoticons'),
       autolinks = require('autolinks');
@@ -23,7 +23,7 @@ const Text = React.createClass({
         var message_content = this.props.message_content;
 
         return (
-            <div dangerouslySetInnerHTML={this._formatMessage(message_content)}>
+            <div className='text' dangerouslySetInnerHTML={this._formatMessage(message_content)}>
             </div>
         );
     }

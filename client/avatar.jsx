@@ -5,10 +5,20 @@ var Avatar = React.createClass({
         return 'https://avatars.githubusercontent.com/' + username.toLowerCase();
     },
     render() {
-        const src = this._getAvatar(this.props.username);
+        var ret = null;
+
+        if(this.props.username != null) {
+            var src = this._getAvatar(this.props.username);
+            ret = <img src={src}
+                       alt={this.props.username}
+                       className='avatar'
+                       onClick={this.props.toggleUserMenu} />;
+        }
 
         return (
-            <img src={src} alt={this.props.username} className='avatar' />
+            <div>
+                {ret}
+            </div>
         );
     }
 });

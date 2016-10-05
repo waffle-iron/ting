@@ -37,6 +37,12 @@ class Message(models.Model):
                                     choices=MESSAGE_TYPE,
                                     default=TEXT)
 
+class City(models.Model):
+    def __str__(self):
+        return self.name
+
+    name = models.CharField(max_length=20, unique=True)
+
 class TingUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     MALE = 0
@@ -61,4 +67,3 @@ def create_profile(sender, **kwargs):
 @receiver(post_save, sender=User)
 def save_profile(sender, **kwargs):
     kwargs['instance'].tinguser.save()
-

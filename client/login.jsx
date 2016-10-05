@@ -1,75 +1,133 @@
-var React = require('react');
-var i18n = require('i18next-client');
-var classNames = require('classnames');
+const React = require('react'),
+      ReactDOM = require('react-dom'),
+      i18n = require('i18next-client'),
+      classNames = require('classnames');
 
-var LoginForm = React.createClass({
+const LoginForm = React.createClass({
     getInitialState() {
         return {
+            validationStateUsername: true,
+            validationStatePassword: true,
             validationState: true,
             errorStr: '',
             username: '',
-            changed: false
+            password: null,
+            usernameChanged: false,
+            passwordChanged: false,
+            type: 'simpleLogin'
         };
     },
-    _validate(username) {
+    _validateUsername(username) {
         var rex = /^[ά-ώα-ωa-z0-9]+$/i;
 
         if (username == '') {
-            return 'empty';
+            return 'username-empty';
         }
         else if (username.length > 20) {
-            return 'length';
+            return 'username-length';
         }
         else if (!rex.test(username)) {
-            return 'chars';
-        } 
+            return 'username-chars';
+        }
+        return true;
+    },
+    _validatePassword(password) {
+        if (password == '') {
+            return 'password-empty';
+        }
+
         return true;
     },
     _handleError(validationState) {
         this.setState({
             validationState: validationState,
-            errorStr: i18n.t('usernameSet.errors.' + validationState)
+            errorStr: i18n.t('errors.' + validationState)
         });
     },
     _onUsernameChanged(username) {
-        var validationState = this._validate(username);
+        var validationStateUsername = this._validateUsername(username);
+        this.setState({validationStateUsername, username});
 
-        this.setState({username});
-        if (!this.state.changed) {
+        if (!this.state.usernameChanged) {
             this.setState({
-                changed: true
+                usernameChanged: true
             });
         }
 
-        this._handleError(validationState);
+        if (validationStateUsername !== true) {
+            this._handleError(validationStateUsername);
+        }
+        else if (this.state.validationStatePassword !== true) {
+            this._handleError(this.state.validationStatePassword);
+        }
+        else {
+            this._handleError(true);
+        }
+    },
+    _onPasswordChanged(password) {
+        var validationStatePassword = this._validatePassword(password);
+        this.setState({validationStatePassword, password});
+
+        if (!this.state.passwordChanged) {
+            this.setState({
+                passwordChanged: true
+            });
+        }
+
+        if (this.state.validationStateUsername !== true) {
+            this._handleError(this.state.validationStateUsername);
+        }
+        else if (validationStatePassword !== true) {
+            this._handleError(validationStatePassword);
+        }
+        else {
+            this._handleError(true);
+        }
     },
     onError(error) {
         this._handleError(error);
     },
     onSuccess() {
-        $(React.findDOMNode(this.refs.usernameSetModal)).modal('hide');
+        $(ReactDOM.findDOMNode(this.refs.usernameSetModal)).modal('hide');
     },
-    handleChange(event) {
+    handleChangeUsername(event) {
         this._onUsernameChanged(event.target.value);
+    },
+    handleChangePassword(event) {
+        this._onPasswordChanged(event.target.value);
     },
     handleSubmit(event) {
         event.preventDefault();
 
-        if (!this.state.changed) {
+        if (!this.state.usernameChanged) {
             this._onUsernameChanged('');
             return;
         }
 
-        if (this.state.validationState !== true) {
+        if (this.state.type == 'passwordLogin' && !this.state.passwordChanged) {
+            this._onPasswordChanged('');
             return;
         }
 
-        this.props.onLoginIntention(this.state.username);
+        if (this.state.validationStateUsername !== true) {
+            return;
+        }
+
+        if (this.state.type == 'passwordLogin') {
+            if (this.state.validationStatePassword !== true) {
+                return;
+            }
+        }
+
+        this.props.onLoginIntention(this.state.username, this.state.password);
+    },
+    switchToPasswordLogin() {
+        this.setState({type: 'passwordLogin'});
     },
     componentDidMount() {
-        $(React.findDOMNode(this.refs.usernameSetModal)).modal('show');
+        $(ReactDOM.findDOMNode(this.refs.usernameSetModal)).modal('show');
         setTimeout(() => {
-            React.findDOMNode(this.refs.username).focus();
+            ReactDOM.findDOMNode(this.refs.username).focus();
         }, 300);
     },
     render() {
@@ -78,6 +136,20 @@ var LoginForm = React.createClass({
             'alert-warning': true,
             'hidden': this.state.validationState === true
         });
+
+        var haveAccLink = null,
+            passwordField = null;
+
+        if (this.state.type == 'simpleLogin') {
+            haveAccLink = <div onClick={this.switchToPasswordLogin}>Έχω ήδη ψευδώνυμο</div>;
+        }
+        else if (this.state.type == 'passwordLogin') {
+            passwordField = <input type='password'
+                                   className='form-control input-small'
+                                   placeholder={i18n.t('passwordSet.placeholder')}
+                                   ref='password'
+                                   onChange={this.handleChangePassword} />;
+        }
 
         return (
             <div className='modal fade'
@@ -100,13 +172,15 @@ var LoginForm = React.createClass({
                                        className='form-control input-small'
                                        placeholder={i18n.t('usernameSet.placeholder')}
                                        ref='username'
-                                       onChange={this.handleChange} />
+                                       onChange={this.handleChangeUsername} />
+                                {passwordField}
                                 <input type='submit'
                                        name='join'
                                        id='join'
                                        value={i18n.t('usernameSet.submit')}
                                        className='btn btn-primary' />
                             </form>
+                            {haveAccLink}
                         </div>
                     </div>
                 </div>

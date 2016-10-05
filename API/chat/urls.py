@@ -20,8 +20,13 @@ urlpatterns = [
         name='channel'
     ),
     url(
+        r'^cities/$',
+        views.CityView.as_view(),
+        name='city'
+    ),
+    url(
         r'^sessions/',
         views.SessionView.as_view(),
         name='session'
-    ),
+    )
 ]

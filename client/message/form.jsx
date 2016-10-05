@@ -1,4 +1,5 @@
-const React = require('react/addons'),
+const React = require('react'),
+      ReactDOM = require('react-dom'),
       i18n = require('i18next-client');
 
 const MessageForm = React.createClass({
@@ -7,7 +8,6 @@ const MessageForm = React.createClass({
     _lastUpdate: 0,
     _lastUpdateTimeout: null,
     _imageData: null,
-    _typeLastMessage: null,
     getInitialState() {
         return {
             message: ''
@@ -21,7 +21,7 @@ const MessageForm = React.createClass({
         if (message.trim().length > 0) {
             this.props.onMessageSubmit(message, 'text');
 
-            React.findDOMNode(this.refs.inputField).value = '';
+            ReactDOM.findDOMNode(this.refs.inputField).value = '';
         }
 
         this.setState({
@@ -29,11 +29,10 @@ const MessageForm = React.createClass({
         });
     },
     onLogin() {
-        React.findDOMNode(this.refs.inputField).focus();
+        ReactDOM.findDOMNode(this.refs.inputField).focus();
     },
     handleChange(event) {
         var message = event.target.value;
-        this._typeLastMessage = 'text';
 
         if (message.trim().length > 0) {
             if (this.state.message == '') {
@@ -60,11 +59,6 @@ const MessageForm = React.createClass({
         this._imageData = event.target.result;
         this.props.onStartTyping(this._imageData, 'image');
     },
-    onStartTypingResponse(messageid) {
-        if (this._typeLastMessage == 'image') {
-            this.props.onMessageSubmit(this._imageData, 'image');
-        }
-    },
     loadImage(src) {
         var reader = new FileReader();
         reader.onload = this.onImageLoaded;
@@ -72,7 +66,6 @@ const MessageForm = React.createClass({
     },
     handleDrop(event) {
         event.preventDefault();
-        this._typeLastMessage = 'image';
         var data = event.dataTransfer.files[0];
         this.loadImage(data);
     },

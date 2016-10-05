@@ -2,37 +2,8 @@ const React = require('react'),
       Avatar = require('./avatar.jsx');
 
 const UserList = React.createClass({
-    getInitialState() {
-        return {
-            users: [],
-            myUsername: null
-        };
-    },
-    onLogin(myUsername, users) {
-        this.setState({myUsername, users});
-    },
-    onJoin(username) {
-        if (username != this.state.myUsername) {
-            var newState = React.addons.update(
-                this.state, {
-                    users: {
-                        $push: [username]
-                    }
-                }
-            );
-            this.setState(newState);
-        }
-    },
-    onPart(username) {
-        var newUsers = this.state.users.filter((name) => {
-            return username != name;
-        });
-        this.setState({
-            users: newUsers
-        });
-    },
     render() {
-        var userNodes = this.state.users.map((user) => {
+        var userNodes = this.props.users.map((user) => {
             return (
                 <User key={user} username={user} />
             );

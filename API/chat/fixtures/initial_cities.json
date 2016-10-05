@@ -1,0 +1,30 @@
+[
+    {
+        "model": "chat.city",
+        "pk": 1,
+        "fields": {
+            "name": "Athens"
+        }
+    },
+    {
+        "model": "chat.city",
+        "pk": 2,
+        "fields": {
+            "name": "Thessaloniki"
+        }
+    },
+    {
+        "model": "chat.city",
+        "pk": 3,
+        "fields": {
+            "name": "Patra"
+        }
+    },
+    {
+        "model": "chat.city",
+        "pk": 4,
+        "fields": {
+            "name": "Larisa"
+        }
+    }
+]

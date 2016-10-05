@@ -73,7 +73,7 @@
     padding: 10px 2px 0 12px;
     width: 100%;
 }
-.chat ul div {
+.chat ul div.text {
     margin: 0 0 0 12px;
     padding: 9px;
     border-radius: 16px;
@@ -86,11 +86,11 @@
     top: -2px;
     cursor: text;
 }
-.chat ul .self div {
+.chat ul .self div.text {
     background-color: #0084ff;
     color: white;
 }
-.chat ul .typing div {
+.chat ul .typing div.text {
     opacity: 0.5;
 }
 #message {
@@ -105,11 +105,48 @@
     margin-top: 7px;
     margin-left: 20px;
 }
+.top img.avatar {
+    position: absolute;
+    top: 10%;
+    right: 22px;
+    border-radius: 50px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.top .menu {
+    position: absolute;
+    top: 50px;
+    right: 24px;
+    background-color: LightSlateGray;
+    border-radius: 5px;
+    padding: 0px;
+    z-index: 2;
+}
+.top .menu:before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 3px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid LightSlateGray;
+}
+.top .menu li {
+    margin: 15px 10px;
+    color: white;
+    cursor: pointer;
+}
+.menu li a {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
 #username-set input {
     margin-bottom: 10px;    
     margin-top: 10px;
 }
-#username-set input[type=text] {
+#username-set input[type=text], #username-set input[type=password] {
     margin-right: auto;
     margin-left: auto;
     width: 30%;
@@ -117,11 +154,11 @@
 ul {
     list-style-type: none;
 }
-.chat ul .self div a {
+.chat ul .self div.text a {
     color: white;
     text-decoration: underline;
 }
-.chat ul div:after {
+.chat ul div.text:after {
     content: "◀";
     display: block;
     position: absolute;
@@ -130,7 +167,7 @@ ul {
     color: #f1f0f0;
     font-weight: bold;
 }
-.chat ul .self div:after {
+.chat ul .self div.text:after {
     color: #0084ff;
 }
 #online-list {
@@ -196,6 +233,77 @@ ul {
         opacity: 0.5;
     }
 }
-.chat ul li.typing div {
+.chat ul li.typing div.text {
     animation: flash 2s infinite;
+}
+#username-set + div {
+    display: block;
+    margin-bottom: 9px;
+    cursor: pointer;
+    color: #0066FF;
+}
+#settings {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    width: 345px;
+    height: auto;
+    margin: auto;
+}
+#settings .icon-username {
+    position: absolute;
+    top: 30px;
+    left: 100px;
+    width: 250px;
+    height: 150px;
+}
+.icon-username .icon {
+    position: absolute;
+    width: 100px;
+    height: 150px;
+    border: 1px solid black;
+}
+.icon img {
+    position: absolute;
+    height: 100px;
+    width: 100px;
+}
+.icon span {
+    position: absolute;
+    top: 100px;
+    width: 100%;
+    padding: 5px 10px;
+    border-top: 1px solid black;
+    cursor: pointer;
+}
+.icon-username h2 {
+    position: absolute;
+    top: -20px;
+    left: 120px;
+}
+#settings .form {
+    position: absolute;
+    top: 225px;
+    width: 400px;
+}
+.form label {
+    width: 150px;
+    margin: 0px 20px 30px 0px;
+    text-align: right;
+}
+.form select {
+    width: 174px;
+}
+.form p:nth-child(3) select {
+    width: 58px !important;
+}
+.form button {
+    position: relative;
+    left: 150px;
+    color: white;
+    background-color: #0084ff;
+    border: 1px solid #0084ff;
+    border-radius: 5px;
+    padding: 10px 20px;
 }

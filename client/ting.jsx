@@ -1,26 +1,27 @@
 const UserList = require('./userlist.jsx'),
       LoginForm = require('./login.jsx'),
+      TopBar = require('./topbar.jsx'),
       History = require('./message/history.jsx'),
       MessageForm = require('./message/form.jsx'),
       React = require('react'),
       Analytics = require('./analytics.js'),
-      i18n = require('i18next-client'),
       io = require('socket.io-client'),
       config = require('./config.jsx'),
       _ = require('lodash');
 
 const Ting = React.createClass({
     _socket: null,
+    _title: document.title,
+    _audio: new Audio('static/sounds/message_sound.mp3'),
     onLogin(username, people) {
-        this.refs.history.onLogin(username, people);
-        this.refs.messageForm.onLogin(username, people);
-        this.refs.userList.onLogin(username, people);
+        this.refs.topBar.onLogin(username);
+        this.props.onLogin(username, people);
 
         // currently `type` is always 'channel'
         $.getJSON('/api/messages/channel/' + this.state.channel, (messages) => {
             const history = _.indexBy(messages, 'id');
 
-            this.refs.history.onHistoricalMessagesAvailable(history);
+            this.props.onHistoricalMessagesAvailable(history);
         });
     },
     getInitialState() {
@@ -28,15 +29,20 @@ const Ting = React.createClass({
               parts = url.split('/');
         var [channel] = parts.slice(-1);
 
-        if (channel == '' || channel == '?') {
+        /*if (channel == '' || channel == '?') {
             channel = 'ting';
-        }
+        }*/
+
+        channel = 'ting';
 
         return {
             channel,
             intendedUsername: null,
+            intendedPassword: null,
             // TODO(dionyziz): race conditions and queues
-            currentMessageId: null
+            currentMessageId: null,
+            active: true,
+            unread: 0
         };
     },
     componentWillMount() {
@@ -59,32 +65,43 @@ const Ting = React.createClass({
         });
 
         this._socket.on('message', (data) => {
-            this.refs.history.onMessage(data);
+            if (!this.state.active && data.username != this.state.intendedUsername) {
+                this.setState({
+                    unread: this.state.unread + 1
+                });
+
+                this._audio.play();
+            }
+
+            this.props.onMessage(data);
         });
 
         this._socket.on('part', (username) => {
-            this.refs.userList.onPart(username);
-            this.refs.history.deleteTypingMessage(username);
+            this.props.onPart(username);
         });
 
-        this._socket.on(
-            'join',
-            (username) => this.refs.userList.onJoin(username)
-        );
+        this._socket.on('join', (username) => {
+            if (username != this.state.intendedUsername) {
+                this.props.onJoin(username);
+            }
+        });
 
         this._socket.on('start-typing-response', (messageid) => {
             this.setState({currentMessageId: messageid});
-            this.refs.messageForm.onStartTypingResponse(messageid);
         });
 
         this._socket.on('update-typing-messages', (messagesTyping) => {
-            this.refs.history.onUpdateTypingMessages(messagesTyping);
+            this.props.onUpdateTypingMessages(messagesTyping);
+        });
+
+        this._socket.on('upload-image', ({message_content, messageid}) => {
+            this.onMessageSubmit(message_content, 'image', messageid);
         });
 
         Analytics.init();
     },
-    onMessageSubmit(message, messageType) {
-        if (this.state.currentMessageId == null) {
+    onMessageSubmit(message, messageType, messageid) {
+        if (this.state.currentMessageId == null && messageType == 'text') {
             //console.log('Skipping message submit');
             return;
         }
@@ -93,9 +110,10 @@ const Ting = React.createClass({
             type: 'channel',
             target: this.state.channel,
             message_content: message,
-            messageid: this.state.currentMessageId,
+            messageid: messageType == 'image' ? messageid : this.state.currentMessageId,
             message_type: messageType
         };
+
         this._socket.emit('message', data);
 
         Analytics.onMessageSubmit(message);
@@ -123,32 +141,61 @@ const Ting = React.createClass({
         };
         this._socket.emit('typing-update', data);
     },
-    onLoginIntention(intendedUsername) {
-        this.setState({intendedUsername});
+    onLoginIntention(intendedUsername, intendedPassword) {
+        this.setState({intendedUsername, intendedPassword});
 
         Analytics.onLoginIntention(intendedUsername);
-        this._socket.emit('login', intendedUsername);
+        this._socket.emit('login', intendedUsername, intendedPassword);
+    },
+    _updateTitle() {
+        var titlePrefix;
+
+        if (this.state.active || this.state.unread == 0) {
+            titlePrefix = '';
+        }
+        else {
+            titlePrefix = '(' + this.state.unread + ') ';
+        }
+
+        document.title = titlePrefix + this._title;
+    },
+    componentDidUpdate() {
+        this._updateTitle();
+    },
+    componentDidMount() {
+        $(document).on({
+            show: () => {
+                this.setState({
+                    active: true,
+                    unread: 0
+                });
+            },
+            hide: () => {
+                this.setState({
+                    active: false
+                });
+            }
+        });
     },
     render() {
+        const children = React.Children.map(this.props.children,
+            (child) => React.cloneElement(child, {
+                channel: this.state.channel,
+                onMessageSubmit: this.onMessageSubmit,
+                onTypingUpdate: this.onTypingUpdate,
+                onStartTyping: this.onStartTyping
+            })
+        );
+
         return (
             <div>
                 <div className='top'>
                     <h1>Ting</h1>
+                    <TopBar ref='topBar' />
                 </div>
-                <div className='app'>
-                    <div className='nicklist'>
-                        <UserList ref='userList' />
-                    </div>
-                    <div className='chat'>
-                        <History ref='history'
-                                 channel={this.state.channel} />
-                        <MessageForm ref='messageForm'
-                                     channel={this.state.channel}
-                                     onMessageSubmit={this.onMessageSubmit}
-                                     onTypingUpdate={this.onTypingUpdate}
-                                     onStartTyping={this.onStartTyping} />
-                    </div>
-                </div>
+
+                {children}
+
                 <LoginForm ref='loginForm'
                            onLoginIntention={this.onLoginIntention} />
             </div>
@@ -156,12 +203,4 @@ const Ting = React.createClass({
     }
 });
 
-i18n.init(
-    { 
-        resGetPath:' locales/__lng__.json',
-        lng: 'el-GR'
-    },
-    () => {
-        React.render(<Ting />, document.getElementsByClassName('ting')[0]);
-    }   
-);
+module.exports = Ting;
