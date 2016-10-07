@@ -26,6 +26,7 @@ class MessageView(View):
     @privileged
     def post(self, request, type, target, *args, **kwargs):
         # currently `type` is always 'channel'
+        print "hi hi"
         channel = get_object_or_404(Channel, name=target)
 
         form = MessageCreationForm(request.POST)
@@ -107,6 +108,7 @@ class CityView(View):
 
 class SessionView(View):
     def post(self, request, *args, **kwargs):
+        print "yes"
         session_form = SessionForm(data=request.POST)
         if not session_form.is_valid():
             error = session_form.errors["__all__"].as_data()[0]
