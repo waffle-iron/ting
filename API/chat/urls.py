@@ -26,7 +26,7 @@ urlpatterns = [
     ),
     url(
         r'^sessions/',
-        views.SessionView.as_view(),
+        csrf_exempt(views.SessionView.as_view()),
         name='session'
     )
 ]

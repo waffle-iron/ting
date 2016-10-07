@@ -4,12 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, QueryDict
 from django.views.generic import View
 from .utils import datetime_to_timestamp
-<<<<<<< HEAD
-
-from .models import Channel, Message, TingUser
-=======
 from .models import Channel, Message, TingUser, City
->>>>>>> 36664a58cd69656271e7584ab03d9508c3d3664c
 from .forms import MessageCreationForm, MessagePatchForm, SessionForm
 from django.conf import settings
 from django.contrib.auth import authenticate, login
@@ -116,7 +111,7 @@ class SessionView(View):
         if not session_form.is_valid():
             error = session_form.errors["__all__"].as_data()[0]
             if error.code in [
-                'invalid_login', 'password_required', 'wrong_password'
+                'invalid_login', 'password_required', 'wrong_password', 'in_use'
             ]:
                 return HttpResponseForbidden()
             if error.code is 'password_set':
@@ -132,7 +127,8 @@ class SessionView(View):
         return HttpResponse(status=200)
 
 
-    def delete(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(status=200)
         logout(request)
 
 """
@@ -166,5 +162,3 @@ class TingUserView(View):
         )
         user.delete()
 """
-=======
->>>>>>> 36664a58cd69656271e7584ab03d9508c3d3664c
