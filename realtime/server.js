@@ -39,6 +39,21 @@ function getOptions(form, path, method) {
     }
 }
 
+function getOptions_1(form, method) {
+    var headers = {
+        'User-Agent':       'node-ting/0.1.0',
+        'Content-Type':     'application/x-www-form-urlencoded',
+        'Authorization':    PASS
+    }
+
+    return {
+        url: URL + '/api/sessions/',
+        method: method,
+        headers: headers,
+        form: form
+    }
+}
+
 function sendLoginErrorResponse(username, client, error) {
     winston.info('Username [' + username + '] of client with id ' + client.id + ' had error ' + error + '.');
     client.emit('login-response', {
@@ -89,6 +104,17 @@ socket.on('connection', function (client) {
         logUsersCount();
         client.emit('login-response', resp);
         socket.sockets.emit('join', username);
+        
+        var options = getOptions_1({
+            id: client.messageid,
+            username: 'name'
+        }, 'POST');
+
+        req(options, function(error, response, body) {
+            if (error) {
+                winston.warn('Error communicating with Django with PATCH request: ' + error);
+            }
+        });
     });
 
     client.on('message', function(data) {
