@@ -73,6 +73,12 @@ class SessionForm(AuthenticationForm):
 
         try:
             user = User.objects.get(username=username)
+            if not user.tinguser.reserved:
+                raise forms.ValidationError(
+                    "in_use",
+                    code="in_use"
+                )
+
         except User.DoesNotExist:
             rand_pass=User.objects.make_random_password()
             user = User.objects.create_user(
@@ -104,7 +110,7 @@ class SessionForm(AuthenticationForm):
                     code="wrong_password"
                 )
 
-        if not user.tinguser.reserved:
+        if not user.tinguser.reserved and rand_pass:
             user = authenticate(username=user.username, password=rand_pass)
         self.user_cache = user
         self.confirm_login_allowed(self.user_cache)

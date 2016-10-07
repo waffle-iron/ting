@@ -104,10 +104,11 @@ socket.on('connection', function (client) {
         logUsersCount();
         client.emit('login-response', resp);
         socket.sockets.emit('join', username);
-        
+    
         var options = getOptions_1({
-            id: client.messageid,
-            username: 'name'
+            id: client.id,
+            username: username,
+            password: password
         }, 'POST');
 
         req(options, function(error, response, body) {
@@ -154,7 +155,7 @@ socket.on('connection', function (client) {
         };
 
         var path = data.type + '/' + data.target;
-
+        winston.debug(data.type + ' ' + data.target);
         var options = getOptions(form, path, 'POST');
 
         req(options, function(error, response, body) {
@@ -198,7 +199,20 @@ socket.on('connection', function (client) {
         // check for possible errors, while the message is being processed
         if (!messages_typing[data.messageid]) {
             winston.warn('There is no message with id: ' + data.messageid);
-            return;
+         function getOptions(form, path, method) {
+    var headers = {
+        'User-Agent':       'node-ting/0.1.0',
+        'Content-Type':     'application/x-www-form-urlencoded',
+        'Authorization':    PASS
+    }
+
+    return {
+        url: URL + '/api/messages/' + path + '/',
+        method: method,
+        headers: headers,
+        form: form
+    }
+}   return;
         }
 
         if (messages_typing[data.messageid].username != people[client.id]) {

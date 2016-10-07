@@ -113,7 +113,7 @@ class SessionView(View):
         if not session_form.is_valid():
             error = session_form.errors["__all__"].as_data()[0]
             if error.code in [
-                'invalid_login', 'password_required', 'wrong_password'
+                'invalid_login', 'password_required', 'wrong_password', 'in_use'
             ]:
                 return HttpResponseForbidden()
             if error.code is 'password_set':
@@ -129,5 +129,38 @@ class SessionView(View):
         return HttpResponse(status=200)
 
 
-    def delete(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(status=200)
         logout(request)
+
+"""
+class TingUserView(View):
+    # USE REQUEST
+    def post(self, request.POST):
+        user = TingUser.objects.create(
+            username=request.POST['username'],
+            password=request.POST['password'],
+            email=request.POST['email'],
+            gender=request.POST['gender']
+        )
+        user.save()
+
+    def patch(self, request.PATCH):
+        user = TingUser.objects.get(
+            username=request.PATCH['username']
+        )
+        if request.PATCH.getattr('username', None):
+            user.set_username(request.PATCH['username'])
+        if request.PATCH.getattr('password', None):
+            user.set_password(request.PATCH['password'])
+        if request.PATCH.getattr('email', None):
+            user.set_email(request.PATCH['email'])
+        if request.PATCH.getattr('gender', None):
+            user.set_gender(request.PATCH['gender'])
+
+    def delete(self, request.DELETE):
+        user = TingUser.objects.get(
+            username = request.DELETE['username']
+        )
+        user.delete()
+"""
