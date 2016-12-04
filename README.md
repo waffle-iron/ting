@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Hepic/ting.png?label=ready&title=Ready)](https://waffle.io/Hepic/ting)
 Ting is a chat platform.
 
 * To learn what the vision for ting is, see /etc/spec/SPECIFICATION.md.
